@@ -1,4 +1,11 @@
+#!/usr/bin/perl
+#
 # Extract used the bibliography elements into a single file
+#
+# Diomidis Spinellis, 2000, 2005
+#
+# $Id$
+#
 
 sub getcitation {
 	my($fname) = @_;
@@ -6,20 +13,28 @@ sub getcitation {
 	open ($IN, $fname) || die;
 	print STDERR "Reading $fname\n";
 	while(<$IN>) {
-		$used{$1} = 1 if (/\\citation\{([^\}]+)\}/);
-		@refs = split(/,/, $1) if (/\\bibdata\{([^}]+)\}/);
-		getcitation($1) if (/\\\@input\{([^}]+)\}/);
+		if (/\\citation\{([^\}]+)\}/) {
+			@cites = split(/\,/, $1);
+			for my $c (@cites) {
+				$used{$c} = 1;
+			}
+		} elsif (/\\bibdata\{([^}]+)\}/) {
+			@refs = split(/,/, $1)
+		} elsif (/\\\@input\{([^}]+)\}/) {
+			getcitation($1) 
+		}
 	}
 }
 
-getcitation('coderead.aux');
+getcitation($ARGV[0]);
 
-@refs = split(/,/, "macro,sec,mp,mybooks,myart,struct,perl,classics,coderead,unix,various,haskell,rfc");
+@refs = split(/,/, "macro,sec,mp,myart,struct,perl,classics,coderead,unix,various,haskell,rfc,ieeestd,isostd,mybooks,ddspubs");
 
 while ($f = shift @refs) {
 	open(IN, "/dds/bib/$f.bib") || die "Unable to open /dds/bib/$f.bib: $!\n";
 	check: for (;;) {
-		if (m/^\s*\@\w+\s*[({]\s*(\w+)/ && $used{$1}) {
+		print if (/\@string.*\".*\"/i);
+		if (m/^\s*\@\w+\s*[({]\s*([^,]+)/ && $used{$1}) {
 			print $_;
 			$used{$1} = 2;
 			while (<IN>) {
