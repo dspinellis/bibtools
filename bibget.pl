@@ -1,11 +1,4 @@
 #!/usr/bin/perl
-#
-# Extract used the bibliography elements into a single file
-#
-# Diomidis Spinellis, 2000, 2005
-#
-# $Id$
-#
 
 sub getcitation {
 	my($fname) = @_;
@@ -18,17 +11,17 @@ sub getcitation {
 			for my $c (@cites) {
 				$used{$c} = 1;
 			}
+			print STDERR "Found citation $1\n";
 		} elsif (/\\bibdata\{([^}]+)\}/) {
-			@refs = split(/,/, $1)
+			@refs = split(/,/, $1);
+			print STDERR "Read refs from ", join(' ', @refs), "\n";
 		} elsif (/\\\@input\{([^}]+)\}/) {
-			getcitation($1) 
+			getcitation($1);
 		}
 	}
 }
 
 getcitation($ARGV[0]);
-
-@refs = split(/,/, "macro,sec,mp,myart,struct,perl,classics,coderead,unix,various,haskell,rfc,ieeestd,isostd,mybooks,ddspubs");
 
 while ($f = shift @refs) {
 	open(IN, "/dds/bib/$f.bib") || die "Unable to open /dds/bib/$f.bib: $!\n";
