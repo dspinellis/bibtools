@@ -43,6 +43,10 @@ for my $aux (@ARGV) {
 	getcitation($aux);
 }
 
+print q{% Automatically-generated file; do not edit.
+% See http://github.com/DSpinellis/bibget
+};
+
 # Heuristic for path separation character
 my $bibinputs = $ENV{'BIBINPUTS'} || '.';
 my $sepchar = ($bibinputs =~ m/\;/) ? ';' : ':';

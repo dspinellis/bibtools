@@ -14,7 +14,7 @@ To do that use the following in place of the `\bibliography` command.
 \ifx\mypubs\relax
 \bibliography{mybibfile1,mybibfile2,mybibfile3,...}
 \else
-\bibliography{shared-refs}
+\bibliography{shared-refs,other-refs}
 \fi % mypubs
 ```
 
