@@ -18,6 +18,16 @@
 #   limitations under the License.
 #
 
+use strict;
+use warnings;
+
+# Files to look for citation records
+my @reference_files;
+# Citations
+my @cites;
+# References that were actually used
+my %used;
+
 sub getcitation {
 	my($fname) = @_;
 	my($IN);
@@ -31,8 +41,8 @@ sub getcitation {
 			}
 			print STDERR "Found citation $1\n";
 		} elsif (/\\bibdata\{([^}]+)\}/) {
-			@refs = split(/,/, $1);
-			print STDERR "References in ", join(' ', @refs), "\n";
+			@reference_files = split(/,/, $1);
+			print STDERR "References in ", join(' ', @reference_files), "\n";
 		} elsif (/\\\@input\{([^}]+)\}/) {
 			getcitation($1);
 		}
@@ -51,26 +61,26 @@ print q{% Automatically-generated file; do not edit.
 my $bibinputs = $ENV{'BIBINPUTS'} || '.';
 my $sepchar = ($bibinputs =~ m/\;/) ? ';' : ':';
 
-while ($f = shift @refs) {
+while (my $ref_file = shift @reference_files) {
 	# Open fiel in BIBINPUTS path
 	my $in;
 	my $found;
 	for my $dir (split($sepchar, $bibinputs)) {
-		if (open($in, "$dir/$f.bib")) {
-			print STDERR "Reading references from $dir/$f.bib\n";
+		if (open($in, "$dir/$ref_file.bib")) {
+			print STDERR "Reading references from $dir/$ref_file.bib\n";
 			$found = 1;
 			last;
 		}
 	}
 	if (!$found) {
-		print STDERR "Unable to open $f: $!\n";
+		print STDERR "Unable to open $ref_file: $!\n";
 		exit 1;
 	}
 
 	check: for (;;) {
-		print if (/\@string.*\".*\"/i);
+		print if (defined($_) && /\@string.*\".*\"/i);
 		# Output a matched reference
-		if (m/^\s*\@\w+\s*[({]\s*([^,]+)/ && $used{$1}) {
+		if (defined($_) && m/^\s*\@\w+\s*[({]\s*([^,]+)/ && $used{$1}) {
 			print $_;
 			$used{$1} = 2;
 			while (<$in>) {
@@ -78,11 +88,11 @@ while ($f = shift @refs) {
 				print $_;
 			}
 		}
-		last unless ($_ = <$in>);
+		last unless (defined($_ = <$in>));
 	}
 }
 
-#Print elements not found
-while (($key, $val) = each %used) {
+# Print elements not found
+while (my ($key, $val) = each %used) {
 	print STDERR "Not found: $key\n" if ($val == 1);
 }
