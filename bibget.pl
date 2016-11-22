@@ -65,7 +65,7 @@ while (my $ref_file = shift @reference_files) {
 	# Open fiel in BIBINPUTS path
 	my $in;
 	my $found;
-	for my $dir (split($sepchar, $bibinputs)) {
+	for my $dir ((split($sepchar, $bibinputs), '.')) {
 		if (open($in, "$dir/$ref_file.bib")) {
 			print STDERR "Reading references from $dir/$ref_file.bib\n";
 			$found = 1;
