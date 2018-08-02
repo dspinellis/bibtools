@@ -31,7 +31,7 @@ my %used;
 sub getcitation {
 	my($fname) = @_;
 	my($IN);
-	open ($IN, $fname) || die;
+	open ($IN, $fname) || die "Unable to open $fname: $!\n";
 	print STDERR "Processing $fname\n";
 	while(<$IN>) {
 		if (/\\citation\{([^\}]+)\}/) {
@@ -47,6 +47,11 @@ sub getcitation {
 			getcitation($1);
 		}
 	}
+}
+
+if ($#ARGV == -1) {
+	print STDERR "Usage: $0 auxfile ...\n";
+	exit 1;
 }
 
 for my $aux (@ARGV) {
