@@ -3,7 +3,7 @@
 # Extract used the bibliography elements into a single file
 # See http://github.com/DSpinellis/bibget
 #
-# Copyright 2005-2016 Diomidis Spinellis
+# Copyright 2005-2022 Diomidis Spinellis
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -28,7 +28,8 @@ my @cites;
 # References that were actually used
 my %used;
 
-sub getcitation {
+# Collect citations for the specified BibTeX file
+sub get_bibtex_citation {
 	my($fname) = @_;
 	my($IN);
 	open ($IN, $fname) || die "Unable to open $fname: $!\n";
@@ -39,23 +40,43 @@ sub getcitation {
 			for my $c (@cites) {
 				$used{$c} = 1;
 			}
-			print STDERR "Found citation $1\n";
+			print STDERR "Found BibTeX citation $1\n";
 		} elsif (/\\bibdata\{([^}]+)\}/) {
 			@reference_files = split(/,/, $1);
 			print STDERR "References in ", join(' ', @reference_files), "\n";
 		} elsif (/\\\@input\{([^}]+)\}/) {
-			getcitation($1);
+			get_bibtex_citation($1);
+		}
+	}
+}
+
+# Collect citations for the specified Biber file
+sub get_biber_citation {
+	my($fname) = @_;
+	my($IN);
+	open ($IN, $fname) || die "Unable to open $fname: $!\n";
+	print STDERR "Processing $fname\n";
+	while(<$IN>) {
+		if (/\<bcf:citekey[^>]*\>([^<]+)\<\/bcf:citekey\>/) {
+			$used{$1} = 1;
+			print STDERR "Found Biber citation $1\n";
+		} elsif (/\<bcf:datasource[^>]*datatype=\"bibtex\"[^>]*\>([^<]+)\<\/bcf:datasource\>/) {
+			push(@reference_files, $1);
+			print STDERR "Add reference file $1\n";
+		} elsif (/\<bcf:datasource[^>]*datatype=\"([^"]+)\"/) {
+			print STDERR "Skipping unknown data source $1\n";
 		}
 	}
 }
 
 if ($#ARGV == -1) {
-	print STDERR "Usage: $0 auxfile ...\n";
+	print STDERR "Usage: $0 aux-or-bcf-file ...\n";
 	exit 1;
 }
 
-for my $aux (@ARGV) {
-	getcitation($aux);
+for my $name (@ARGV) {
+	get_bibtex_citation($name) if ($name =~ m/\.aux/);
+	get_biber_citation($name) if ($name =~ m/\.bcf/);
 }
 
 print q{% Automatically-generated file; do not edit.
@@ -67,11 +88,12 @@ my $bibinputs = $ENV{'BIBINPUTS'} || '.';
 my $sepchar = ($bibinputs =~ m/\;/) ? ';' : ':';
 
 while (my $ref_file = shift @reference_files) {
-	# Open fiel in BIBINPUTS path
+	$ref_file = "$ref_file.bib" unless ($ref_file =~ m/\.bib$/);
+	# Open file in BIBINPUTS path
 	my $in;
 	my $found;
 	for my $dir ((split($sepchar, $bibinputs), '.')) {
-		if (open($in, "$dir/$ref_file.bib")) {
+		if (open($in, "$dir/$ref_file")) {
 			print STDERR "Reading references from $dir/$ref_file.bib\n";
 			$found = 1;
 			last;
