@@ -79,8 +79,13 @@ bibget file.bcf >shared-refs.bib
 ## bibtags: Create a vim/vi/Emacs tags file for bibliography records
 
 The _bibtags_ tool will process the specified `.bib` files,
-and will create in the current directory a file named `tags`,
-which allows the quick navigation to bibliography entry from
+and will create in the current directory a file named `tags`.
+Example:
+```sh
+bibtags $HOME/share/bib/*.bib local.bib
+```
+The generated file allows the quick navigation to bibliography entry from
 your editor.
-For example, in _vim_ you can do this by pressing `^]`,
-when the cursor is on the entry's field.
+For example, in _vim_ you can navigate to the definition
+of a bibliography citation by pressing `^]` when the cursor
+lies on the entry's citation name.
