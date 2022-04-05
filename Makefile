@@ -1,11 +1,15 @@
-NAME=bibget
+BIBGET=bibget
+BIBTAGS=bibtags
+
 PREFIX?=/usr/local
 INSTALL?=install
 
 .PHONY: all install
 
 all:
-	perl -c $(NAME).pl
+	perl -c $(BIBGET).pl
+	sh -n $(BIBTAGS).sh
 
 install:
-	install $(NAME).pl $(PREFIX)/bin/$(NAME)
+	install $(BIBGET).pl $(PREFIX)/bin/$(BIBGET)
+	install $(BIBTAGS).sh $(PREFIX)/bin/$(BIBTAGS)
