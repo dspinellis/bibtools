@@ -107,7 +107,7 @@ while (my $ref_file = shift @reference_files) {
 	check: for (;;) {
 		print if (defined($_) && /\@string.*\".*\"/i);
 		# Output a matched reference
-		if (defined($_) && m/^\s*\@\w+\s*[({]\s*([^,]+)/ && $used{$1}) {
+		if (defined($_) && m/^\s*\@\w+\s*[({]\s*([^,]+)/ && $used{$1} && $used{$1} == 1) {
 			print $_;
 			$used{$1} = 2;
 			while (<$in>) {
