@@ -76,6 +76,10 @@ bibget file.bcf >shared-refs.bib
 
 (Under the Windows `cmd32` shell replace the single quotes with double quotes.)
 
+Note that under Biber it may also be possible to achieve a similar result, just by
+running Biber with the `--output-format=bibtex` option.
+See [this comment](https://github.com/plk/biber/issues/371#issuecomment-1209312425).
+
 ## bibtags: Create a vim/vi/Emacs tags file for bibliography records
 
 The _bibtags_ tool will process the specified `.bib` files,
