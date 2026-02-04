@@ -93,3 +93,6 @@ your editor.
 For example, in _vim_ you can navigate to the definition
 of a bibliography citation by pressing `^]` when the cursor
 lies on the entry's citation name.
+
+## See also
+* The [bibextract](https://ctan.org/pkg/bibextract) CTAN package
